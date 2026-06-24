@@ -14,6 +14,8 @@ Then open `http://localhost:8080`.
 
 ## Publishing Notes
 
+Static assets are referenced with cache-busting query strings in `index.html`. Update the version on `styles.css` and `script.js` whenever either file changes before publishing.
+
 This repo uses a tracked pre-commit hook in `.githooks/pre-commit` to run Gitleaks before commits. Enable it locally with:
 
 ```bash
