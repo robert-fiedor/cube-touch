@@ -1,0 +1,122 @@
+:root {
+  --bg: #111316;
+  --cube-size: min(54vw, 54vh, 320px);
+  --depth: calc(var(--cube-size) / 2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: #f5f7f8;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  min-width: 100vw;
+  min-height: 100svh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(244, 247, 248, 0.16), transparent 32%),
+    linear-gradient(145deg, #111316 0%, #202327 52%, #0b0d0f 100%);
+  cursor: grab;
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.scene {
+  width: var(--cube-size);
+  height: var(--cube-size);
+  perspective: 900px;
+  transform-style: preserve-3d;
+}
+
+.cube {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(-22deg) rotateY(34deg);
+  will-change: transform;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.03)),
+    var(--face-color);
+  box-shadow: inset 0 0 42px rgba(255, 255, 255, 0.08);
+  opacity: 0.94;
+  backface-visibility: visible;
+}
+
+.face::after {
+  content: "";
+  width: 38%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 34px rgba(255, 255, 255, 0.14);
+}
+
+.face-front {
+  --face-color: #2f80ed;
+  transform: translateZ(var(--depth));
+}
+
+.face-back {
+  --face-color: #9b51e0;
+  transform: rotateY(180deg) translateZ(var(--depth));
+}
+
+.face-right {
+  --face-color: #27ae60;
+  transform: rotateY(90deg) translateZ(var(--depth));
+}
+
+.face-left {
+  --face-color: #eb5757;
+  transform: rotateY(-90deg) translateZ(var(--depth));
+}
+
+.face-top {
+  --face-color: #f2c94c;
+  transform: rotateX(90deg) translateZ(var(--depth));
+}
+
+.face-bottom {
+  --face-color: #56ccf2;
+  transform: rotateX(-90deg) translateZ(var(--depth));
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  :root {
+    --cube-size: min(48vw, 64vh, 280px);
+  }
+}
