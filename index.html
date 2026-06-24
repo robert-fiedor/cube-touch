@@ -3,23 +3,62 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#111316">
-    <title>Cube Touch</title>
+    <meta name="theme-color" content="#ffffff">
+    <title>Loomis Head</title>
     <link rel="stylesheet" href="styles.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+        }
+      }
+    </script>
   </head>
   <body>
-    <main class="stage" aria-label="Rotatable cube touch area">
-      <div class="scene" id="scene">
-        <div class="cube" id="cube" aria-label="Interactive cube">
-          <div class="face face-front"></div>
-          <div class="face face-back"></div>
-          <div class="face face-right"></div>
-          <div class="face face-left"></div>
-          <div class="face face-top"></div>
-          <div class="face face-bottom"></div>
+    <main class="app" aria-label="Parametric Loomis head app">
+      <section class="viewport" aria-label="3D Loomis head viewport">
+        <canvas id="scene"></canvas>
+      </section>
+
+      <details class="control-sheet">
+        <summary>Controls</summary>
+        <div class="control-content">
+          <section class="control-group" aria-label="View presets">
+            <h2>View</h2>
+            <div class="button-grid" id="viewButtons">
+              <button type="button" data-view="front">Front</button>
+              <button type="button" data-view="left">Left</button>
+              <button type="button" data-view="right">Right</button>
+              <button type="button" data-view="threeQuarterLeft">3/4 L</button>
+              <button type="button" data-view="threeQuarterRight">3/4 R</button>
+              <button type="button" data-view="top">Top</button>
+              <button type="button" data-view="bottom">Bottom</button>
+              <button type="button" data-view="reset">Reset</button>
+            </div>
+          </section>
+
+          <section class="control-group" aria-label="Construction toggles">
+            <h2>Parts</h2>
+            <div class="toggle-grid" id="toggles"></div>
+          </section>
+
+          <section class="control-group" aria-label="Proportion sliders">
+            <h2>Shape</h2>
+            <div class="slider-stack" id="sliders"></div>
+          </section>
+
+          <section class="control-group json-tools" aria-label="JSON preset tools">
+            <h2>Preset JSON</h2>
+            <textarea id="presetJson" spellcheck="false" aria-label="Loomis head JSON preset"></textarea>
+            <div class="button-row">
+              <button type="button" id="exportJson">Export</button>
+              <button type="button" id="importJson">Import</button>
+            </div>
+          </section>
         </div>
-      </div>
+      </details>
     </main>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
   </body>
 </html>

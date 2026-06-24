@@ -1,6 +1,8 @@
-# Cube Touch
+# Loomis Head
 
-A small static web app that fills the phone screen with a touch-rotatable 3D cube.
+A small static web app that fills the phone screen with a touch-rotatable parametric Loomis head construction model.
+
+The model is generated from code and includes a translucent cranium, side planes, brow line, center line, proportional thirds, a simplified jaw block, optional neck, view presets, proportion sliders, and JSON preset import/export.
 
 ## Local Preview
 
