@@ -65,9 +65,18 @@ class LoomisHeadBuilder {
       sidePlane: new THREE.MeshStandardMaterial({
         color: 0xc4ccd5,
         transparent: true,
-        opacity: 0.38,
+        opacity: 0.34,
         side: THREE.DoubleSide,
         depthWrite: false,
+        depthTest: true,
+      }),
+      sidePlaneGhost: new THREE.MeshBasicMaterial({
+        color: 0xaeb8c1,
+        transparent: true,
+        opacity: 0.07,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        depthTest: false,
       }),
       jaw: new THREE.MeshStandardMaterial({
         color: 0xd7dde3,
@@ -83,9 +92,14 @@ class LoomisHeadBuilder {
         opacity: 0.38,
         roughness: 0.8,
       }),
-      line: new THREE.MeshBasicMaterial({ color: 0x11181d, depthTest: false }),
-      lineSoft: new THREE.MeshBasicMaterial({ color: 0x33414d, depthTest: false }),
-      lineAccent: new THREE.MeshBasicMaterial({ color: 0x0f6bff, depthTest: false }),
+      occluder: new THREE.MeshBasicMaterial({
+        colorWrite: false,
+        depthWrite: true,
+        depthTest: true,
+      }),
+      line: new THREE.MeshBasicMaterial({ color: 0x11181d, depthTest: true, depthWrite: false }),
+      lineSoft: new THREE.MeshBasicMaterial({ color: 0x33414d, depthTest: true, depthWrite: false }),
+      lineAccent: new THREE.MeshBasicMaterial({ color: 0x0f6bff, depthTest: true, depthWrite: false }),
     };
   }
 
@@ -97,6 +111,7 @@ class LoomisHeadBuilder {
     const group = new THREE.Group();
     group.name = "LoomisHead";
 
+    if (this.params.showCranium) group.add(this.buildCraniumOccluder());
     if (this.params.showCranium) group.add(this.buildCranium());
     if (this.params.showSidePlanes) group.add(this.buildSidePlanes());
     if (this.params.showJaw) group.add(this.buildJaw());
@@ -117,17 +132,36 @@ class LoomisHeadBuilder {
     return mesh;
   }
 
+  buildCraniumOccluder() {
+    const p = this.params;
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(p.craniumRadius, 64, 36),
+      this.materials.occluder,
+    );
+    mesh.scale.set(p.craniumScaleX, p.craniumScaleY, p.craniumScaleZ);
+    mesh.renderOrder = 0;
+    return mesh;
+  }
+
   buildSidePlanes() {
     const p = this.params;
     const group = new THREE.Group();
     const segments = 72;
 
     [-1, 1].forEach((side) => {
-      const disc = new THREE.Mesh(new THREE.CircleGeometry(1, segments), this.materials.sidePlane);
+      const discGeometry = new THREE.CircleGeometry(1, segments);
+      const ghostDisc = new THREE.Mesh(discGeometry.clone(), this.materials.sidePlaneGhost);
+      ghostDisc.position.x = side * p.sidePlaneOffsetX;
+      ghostDisc.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
+      ghostDisc.scale.set(p.sidePlaneRadiusZ, p.sidePlaneRadiusY, 1);
+      ghostDisc.renderOrder = 4;
+      group.add(ghostDisc);
+
+      const disc = new THREE.Mesh(discGeometry, this.materials.sidePlane);
       disc.position.x = side * p.sidePlaneOffsetX;
       disc.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
       disc.scale.set(p.sidePlaneRadiusZ, p.sidePlaneRadiusY, 1);
-      disc.renderOrder = 2;
+      disc.renderOrder = 3;
       group.add(disc);
 
       group.add(this.tube(this.ovalPoints(side * p.sidePlaneOffsetX, p.sidePlaneRadiusY, p.sidePlaneRadiusZ, side), 0.01, this.materials.lineSoft));
@@ -206,15 +240,21 @@ class LoomisHeadBuilder {
     geometry.setIndex(indices);
     geometry.computeVertexNormals();
 
+    const group = new THREE.Group();
+    const occluder = new THREE.Mesh(geometry.clone(), this.materials.occluder);
+    occluder.renderOrder = 0;
+    group.add(occluder);
+
     const mesh = new THREE.Mesh(geometry, this.materials.jaw);
     mesh.renderOrder = 1;
     const edges = new THREE.LineSegments(
       new THREE.EdgesGeometry(geometry),
-      new THREE.LineBasicMaterial({ color: 0x172026, depthTest: false }),
+      new THREE.LineBasicMaterial({ color: 0x172026, transparent: true, opacity: 0.5, depthTest: true, depthWrite: false }),
     );
     edges.renderOrder = 5;
     mesh.add(edges);
-    return mesh;
+    group.add(mesh);
+    return group;
   }
 
   buildNeck() {
@@ -326,9 +366,21 @@ class LoomisHeadBuilder {
       ? new THREE.LineCurve3(points[0], points[1])
       : new THREE.CatmullRomCurve3(points, false, "centripetal");
     const geometry = new THREE.TubeGeometry(curve, Math.max(2, points.length * 2), radius, 8, false);
+    const group = new THREE.Group();
+    const ghostMaterial = material.clone();
+    ghostMaterial.transparent = true;
+    ghostMaterial.opacity = 0.12;
+    ghostMaterial.depthTest = false;
+    ghostMaterial.depthWrite = false;
+
+    const ghost = new THREE.Mesh(geometry.clone(), ghostMaterial);
+    ghost.renderOrder = 4;
+    group.add(ghost);
+
     const mesh = new THREE.Mesh(geometry, material);
     mesh.renderOrder = 6;
-    return mesh;
+    group.add(mesh);
+    return group;
   }
 }
 
